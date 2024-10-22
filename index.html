@@ -73,6 +73,8 @@
             object-fit: cover;
             object-position: center;
             margin-bottom: 8px;
+            border: 5px solid red; /* 初期状態は赤い枠 */
+            z-index: 1; /* ビデオを手前に表示 */
         }
         .message {
             font-size: 1.2em;
@@ -92,6 +94,8 @@
             z-index: 2; /* ビデオの上に表示 */
         }
     </style>
+    <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
 </head>
 <body>
     <div class="container">
@@ -113,6 +117,9 @@
     </div>
 
     <script>
+        let model; // モデルをグローバルに保持
+
+        // 現在の日付と時刻を表示する関数
         function updateDateTime() {
             const now = new Date();
             const weekdays = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
@@ -148,11 +155,41 @@
             }
         }
 
-        // 初期化
+        // モデルとカメラを独立して初期化
         window.onload = () => {
             updateDateTime();
-            initializeCamera();
+            initializeCamera();  // カメラを即座に初期化
+            loadModelAndStartDetection();  // モデルをロードして顔検出を開始
         };
+
+        async function loadModelAndStartDetection() {
+            model = await blazeface.load();  // モデルをロード
+            startFaceDetection();  // 顔検出開始
+        }
+
+        // 顔検出を実行
+        async function startFaceDetection() {
+            const message = document.querySelector('.message');
+
+            // 顔検出をループで実行（500msごとに実行）
+            setInterval(async () => {
+                if (model) {
+                    const predictions = await model.estimateFaces(video, { maxFaces: 1 }); // 1つの顔だけを検出
+
+                    if (predictions.length > 0) {
+                        // 顔が検出された場合の処理
+                        video.style.border = '5px solid lime';  // 緑の枠に変更
+                        message.textContent = '服薬するか決めてください';
+                        message.style.color = 'green';
+                    } else {
+                        // 顔が検出されなかった場合の処理
+                        video.style.border = '5px solid red';  // 赤い枠のまま
+                        message.textContent = '顔を見てください';
+                        message.style.color = 'red';
+                    }
+                }
+            }, 500);  // 500msごとに顔検出を実行
+        }
     </script>
 </body>
 </html>
