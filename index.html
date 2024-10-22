@@ -21,7 +21,7 @@
             margin: 0 auto;
             text-align: center;
             box-sizing: border-box;
-            position: relative;
+            position: relative; /* 相対位置 */
         }
         .header {
             font-size: 1.2em;
@@ -49,7 +49,7 @@
             font-size: 1.2em;
         }
         .buttons {
-            display: flex; /* 常に表示 */
+            display: none; /* 初期は非表示 */
             justify-content: space-between;
             gap: 6px;
             margin-top: 8px;
@@ -81,18 +81,18 @@
             color: red;
             margin-bottom: 10px;
         }
-        /* .face-frame {
+        .face-frame {
             position: absolute;
-            top: 110px;
+            top: 110px; /* 顔枠を中央付近に表示 */
             left: 50%;
             transform: translateX(-50%);
             width: 180px;
-            height: 240px;
-            border: 3px solid white;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 2;
-        } */
+            height: 240px; /* 楕円形 */
+            border: 3px solid white; /* 白色の細い枠 */
+            border-radius: 50%; /* 楕円形にする */
+            pointer-events: none; /* 枠が操作を妨げない */
+            z-index: 2; /* ビデオの上に表示 */
+        }
     </style>
     <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
@@ -110,7 +110,7 @@
             <div class="medication-dosage">処方薬 1錠</div>
         </div>
         <div class="buttons">
-            <!-- ボタンが常に表示 -->
+            <!-- ボタンが表示されたときにクリック可能 -->
             <button onclick="window.location.href='https://docs.google.com/forms/d/e/1FAIpQLSeslJsMnOr8zd2wikJRDOV9iaKjjVQyCffybaV44YNXuWJ9iw/viewform?usp=pp_url&entry.366340186=%E3%82%B9%E3%82%AD%E3%83%83%E3%83%97'">スキップ</button>
             <button onclick="window.location.href='https://docs.google.com/forms/d/e/1FAIpQLSeslJsMnOr8zd2wikJRDOV9iaKjjVQyCffybaV44YNXuWJ9iw/viewform?usp=pp_url&entry.366340186=%E6%9C%8D%E8%96%AC'">服薬</button>
         </div>
@@ -170,6 +170,7 @@
         // 顔検出を実行
         async function startFaceDetection() {
             const message = document.querySelector('.message');
+            const buttons = document.querySelector('.buttons');
 
             // 顔検出をループで実行（500msごとに実行）
             setInterval(async () => {
@@ -181,11 +182,13 @@
                         video.style.border = '5px solid lime';  // 緑の枠に変更
                         message.textContent = '服薬するか決めてください';
                         message.style.color = 'green';
+                        buttons.style.display = 'flex';  // ボタンを表示
                     } else {
                         // 顔が検出されなかった場合の処理
                         video.style.border = '5px solid red';  // 赤い枠のまま
                         message.textContent = '顔を見てください';
                         message.style.color = 'red';
+                        buttons.style.display = 'none';  // ボタンを非表示
                     }
                 }
             }, 500);  // 500msごとに顔検出を実行
